@@ -1,0 +1,17 @@
+{
+  "builders": [{
+    "type": "amazon-ebs",
+    "region": "{{user `aws_region`}}",
+    "source_ami": "ami-039ac4d20414c4eef",
+    "instance_type": "t3.micro",
+    "ssh_username": "ubuntu",
+    "ami_name": "{{user `ami_name`}}"
+  }],
+  "provisioners": [{
+    "type": "shell",
+    "inline": [
+      "sudo apt-get update",
+      "cd /home/ubuntu/auto-scalling && npm install && npm start"
+    ]
+  }]
+}
