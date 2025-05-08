@@ -14,7 +14,7 @@ const Home = () => {
                 {/* Feature Cards Section */}
                 <div className="features">
                     <div className="feature-card">
-                        <h3>GEARED TO ADD VALUE</h3>
+                        <h3>AUTO SCALLING</h3>
                         <p>From design to delivery - we provide unmatched value for our customers...</p>
                         <a href="#">Read more</a>
                     </div>
