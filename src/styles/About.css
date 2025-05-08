@@ -1,0 +1,312 @@
+.about-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px 20px;
+    text-align: left;
+}
+
+.about-title {
+    font-size: 2.5em;
+    color: #4F9788;
+    margin-bottom: 20px;
+    text-align: center;
+    font-weight: bold;
+}
+
+.about-description {
+    max-width: 1100px; 
+    font-size: 1.1em;
+    color: #555;
+    line-height: 1.8;
+    margin: 0 auto;
+    text-align: justify;
+    padding-top: 20px;
+}
+
+.about-image-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 40px;
+    flex-wrap: wrap;
+}
+
+.about-image {
+    max-width: 100%;
+    height: auto;
+    border-radius: 20px;
+    border: 2px solid #4F9788; 
+    box-shadow: 0 8px 20px rgba(79, 151, 136, 0.2);
+    transition: transform 0.4s ease, box-shadow 0.4s ease;
+}
+
+.about-image:hover {
+    transform: scale(1.03);
+    box-shadow: 0 12px 30px rgba(79, 151, 136, 0.3);
+}
+
+.leadership-title {
+    text-align: center;
+    margin: 50px 0 20px 0;
+    font-size: 2em;
+    color: #4F9788;
+    font-weight: bold;
+}
+
+.leadership-grid-first-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 30px;
+    margin: 40px auto;
+    max-width: 1100px; 
+    align-items: stretch;
+    justify-content: center;
+}
+
+.first-leader {
+    flex: 1 1 300px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center; 
+    background: linear-gradient(to bottom, #ffffff 0%, #E8F5F3 100%);
+    padding: 20px; 
+    border-radius: 15px;
+    text-align: center;
+    border: 2px solid #4F9788;
+    box-shadow: 0 6px 15px rgba(79, 151, 136, 0.15);
+    margin: 0 auto;
+}
+
+.leader-image {
+    width: 140px;
+    height: 140px;
+    object-fit: cover;
+    border-radius: 50%;
+    margin-bottom: 20px;
+    border: 3px solid #4F9788;
+    background-color: #ffffff;
+}
+
+.mission-vision-container {
+    flex: 2 1 400px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.mission-vision-container .card {
+    background: linear-gradient(to bottom, #ffffff 0%, #E8F5F3 100%);
+    padding: 30px;
+    border-radius: 20px;
+    border: 2px solid #4F9788; 
+    box-shadow: 0 8px 20px rgba(79, 151, 136, 0.15);
+}
+
+.leadership-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* 3 items per row */
+    gap: 30px;
+    justify-items: center;
+    align-items: center;
+    max-width: 1105px; /* Matches the max-width of header/container */
+    margin: 0 auto; 
+}
+
+.leader-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(to bottom, #ffffff 0%, #E8F5F3 100%);
+    padding: 30px 20px;
+    border-radius: 20px;
+    text-align: center;
+    border: 2px solid #4F9788;
+    box-shadow: 0 6px 15px rgba(79, 151, 136, 0.15);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    min-height: 370px;
+}
+
+.leader-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 24px rgba(79, 151, 136, 0.3);
+}
+
+.leader-info h3 {
+    margin: 10px 0 5px;
+    font-size: 1.4em;
+    color: #4F9788;
+    font-weight: bold;
+}
+
+.leader-title {
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: #4F9788;
+}
+
+.leader-description {
+    font-size: 1em;
+    color: #555;
+    margin-top: 10px;
+}
+
+.synnova-edge-section {
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    padding: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    position: relative;
+    max-width: 1025px;
+    min-height: 350px;
+    margin: 40px auto;
+    border: 2px solid #4F9788;
+    box-shadow: 0 8px 20px rgba(0, 128, 128, 0.2);
+    width: 100%;
+    border-radius: 12px;
+    background-color: rgba(255, 255, 255, 0.8);
+    flex-wrap: wrap;
+}
+
+.synnova-edge-content {
+    max-width: 1200px;
+}
+
+.synnova-edge-title {
+    color: #4F9788;
+    font-size: 28px;
+    margin-bottom: 20px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.synnova-edge-subtitle {
+    font-size: 16px;
+    color: #333;
+    margin-bottom: 20px;
+    line-height: 1.5;
+}
+
+.synnova-edge-description {
+    font-size: 18px;
+    color: #444;
+    font-weight: 500;
+    line-height: 1.6;
+}
+
+.advantages-section {
+    margin: 80px auto;
+    text-align: center;
+    padding: 20px;
+}
+
+.advantages-title {
+    font-size: 2.5em;
+    color: #4F9788;
+    font-weight: 800;
+    margin-bottom: 40px;
+    text-transform: uppercase;
+}
+
+.advantages-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr); /* 4 items per row */
+    gap: 20px;
+    justify-items: center;
+    align-items: center;
+    max-width: 1200px; /* Matches the max-width of header/container */
+    margin: 0 auto;
+}
+
+.advantage-item {
+    text-align: center;
+    padding: 10px;
+}
+
+.awards-section {
+    margin: 50px auto;
+    text-align: center;
+    padding: 20px;
+}
+
+.awards-title {
+    font-size: 2.5em;
+    color: #4F9788;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+.award-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+}
+
+.award-image {
+    max-width: 100%;
+    height: auto;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    margin: 0 auto;
+}
+
+.award-title {
+    margin-top: 10px;
+    font-size: 1.2em;
+    color: #555;
+    text-align: center;
+}
+@media (max-width: 1024px) {
+    .leadership-grid {
+        grid-template-columns: repeat(1, 1fr); /* 2 items per row on medium screens */
+    }
+}
+@media (max-width: 768px) {
+    .leadership-grid-first-row {
+        flex-direction: column;
+    }
+
+    .mission-vision-container {
+        width: 100%;
+    }
+
+    /* .synnova-edge-section {
+        width: 100%;
+        padding: 20px;
+    } */
+}
+@media (max-width: 500px) {
+    .synnova-edge-section {
+        width: 90%;
+        padding: 20px;
+    }
+}
+@media (max-width: 480px) {
+    .about-title, .awards-title {
+        font-size: 1.8em;
+    }
+}
+@media (max-width: 1024px) {
+    .advantages-grid {
+        grid-template-columns: repeat(2, 1fr); /* 2 items per row on medium screens */
+    }
+}
+
+@media (max-width: 768px) {
+    .advantages-grid {
+        grid-template-columns: 1fr; /* 1 item per row on small screens */
+    }
+}
+
+@media (max-width: 480px) {
+    .advantages-title {
+        font-size: 2em; /* Adjust title size on very small screens */
+    }
+}

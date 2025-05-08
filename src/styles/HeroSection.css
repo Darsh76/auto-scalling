@@ -1,0 +1,32 @@
+/* Hero Section */
+.hero-section {
+    background-image: url('../assets/hero-image.png'); 
+    background-size: cover;      
+    background-position: center;   
+    background-repeat: no-repeat;  
+    height: 600px;                
+    width: 100%;
+  }
+  
+  /* Header styling */
+  header {
+    background-color: #ffffff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); 
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+  }
+  
+  /* Optional: Menu links */
+  header nav a {
+    color: #333;
+    margin: 0 15px;
+    text-decoration: none;
+    font-weight: 500;
+  }
+  
+  /* Optional: On hover */
+  header nav a:hover {
+    color: #007BFF; 
+  }
+  
