@@ -2,7 +2,7 @@ provider "aws" {
   region = "us-west-2"
 }
 
-# 🔹 Store Terraform State in S3
+# 🔹 Store Terraform State in S3 oregon
 terraform {
   backend "s3" {
     bucket         = "terraform-uni-kuuli-oregon"
@@ -13,7 +13,7 @@ terraform {
   }
 }
 
-# 🔹 Generate an SSH Key Pair
+# 🔹 Generate an SSH Key Pair in oregon
 resource "tls_private_key" "instance_key" {
   algorithm = "RSA"
   rsa_bits  = 2048
