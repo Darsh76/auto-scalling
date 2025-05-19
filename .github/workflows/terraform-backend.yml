@@ -3,11 +3,11 @@ name: Block Backend Apply
 on:
   pull_request:
     paths:
-      - 'terraform/project-root-remote/Backend/**'
+      - 'terraform/project-root-remote/backend/**'
   push:
     branches: [main,dev]
     paths:
-      - 'terraform/project-root-remote/Backend/**'
+      - 'terraform/project-root-remote/backend/**'
 
 jobs:
   block-backend:
