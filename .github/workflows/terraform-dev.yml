@@ -5,6 +5,7 @@ on:
     branches: [ dev ]
     paths:
       - 'terraform/project-root-remote/development/**'
+
 permissions:
   contents: write
 
@@ -14,56 +15,83 @@ env:
 
 jobs:
   fmt-validate:
+    name: Format & Validate Terraform
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - uses: aws-actions/configure-aws-credentials@v3
         with:
           aws-access-key-id:     ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region:            us-east-1
+
       - uses: hashicorp/setup-terraform@v2
         with:
           terraform_version: ${{ env.TF_VERSION }}
-      - name: fmt
+
+      - name: Check Terraform Formatting
         working-directory: ${{ env.TF_WORKING_DIR }}
         run: terraform fmt -check -recursive
-      - name: validate
+
+      - name: Terraform Init
         working-directory: ${{ env.TF_WORKING_DIR }}
-        run: |
-          terraform init -input=false
-          terraform validate
+        run: terraform init -input=false
+
+      - name: Validate Terraform Configuration
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        run: terraform validate
 
   plan:
+    name: Terraform Plan
     needs: fmt-validate
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - uses: aws-actions/configure-aws-credentials@v3
         with:
           aws-access-key-id:     ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region:            us-east-1
+
       - uses: hashicorp/setup-terraform@v2
         with:
           terraform_version: ${{ env.TF_VERSION }}
-      - name: plan
+
+      - name: Terraform Init
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        run: terraform init -input=false
+
+      - name: Terraform Plan
         working-directory: ${{ env.TF_WORKING_DIR }}
         run: terraform plan -out=tfplan.binary -lock-timeout=5m -input=false
 
+      - name: Show Plan Summary
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        run: terraform show -no-color tfplan.binary >> $GITHUB_STEP_SUMMARY
+
   apply:
+    name: Terraform Apply
     needs: plan
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - uses: aws-actions/configure-aws-credentials@v3
         with:
           aws-access-key-id:     ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region:            us-east-1
+
       - uses: hashicorp/setup-terraform@v2
         with:
           terraform_version: ${{ env.TF_VERSION }}
-      - name: apply
+
+      - name: Terraform Init
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        run: terraform init -input=false
+
+      - name: Terraform Apply
         working-directory: ${{ env.TF_WORKING_DIR }}
         run: terraform apply -auto-approve tfplan.binary
