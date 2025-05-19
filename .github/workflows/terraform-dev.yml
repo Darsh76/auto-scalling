@@ -1,60 +1,112 @@
-name: Terraform Dev
+name: Terraform Dev CI/CD
 
 on:
   pull_request:
+    branches:
+      - dev
     paths:
       - 'terraform/project-root-remote/development/**'
   push:
-    branches: [main,dev]
+    branches:
+      - dev
     paths:
       - 'terraform/project-root-remote/development/**'
 
+env:
+  TF_VERSION: 1.5.0
+  TF_WORKING_DIR: terraform/project-root-remote/development/
+
 jobs:
-  terraform-dev:
-    name: Development
+  fmt-validate:
+    name: 🧹 Format & Validate
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: terraform/project-root-remote/development
-    env:
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0  # Ensure full history is available for git branch switching
+      - uses: actions/checkout@v4
 
-    - name: Switch to dev branch if needed
-      run: |
-        set -e
-        echo "🔍 Checking current Git branch..."
-        current_branch=$(git rev-parse --abbrev-ref HEAD)
-        echo "   → $current_branch"
+      # 🔑 Configure AWS creds from Secrets
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v3
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
 
-        if [ "$current_branch" != "dev" ]; then
-          echo "🚚 Switching to dev branch..."
-          git stash || true
-          git checkout dev
-          echo "📥 Pulling latest origin/dev..."
-          git pull origin dev || exit 1
-        else
-          echo "✅ Already on dev branch."
-        fi
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
 
-    - uses: hashicorp/setup-terraform@v3
-      with:
-        terraform_version: 1.6.6
+      - name: Terraform fmt (check)
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        run: terraform fmt -check -recursive
 
-    - run: terraform init
-    - run: terraform fmt -check -recursive
-    - run: terraform validate
+      - name: Terraform validate
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        run: |
+          terraform init -input=false
+          terraform validate
 
-    - name: Terraform Plan
-      if: github.event_name == 'pull_request'
-      run: terraform plan
+  plan:
+    name: 🔍 Plan (dev)
+    needs: fmt-validate
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
 
-    - name: Terraform Apply
-      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-      run: terraform apply -auto-approve
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v3
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Init dev
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        run: terraform init -reconfigure -input=false
+
+      - name: Terraform plan
+        id: tfplan
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        run: terraform plan \
+          -out=tfplan.binary \
+          -lock-timeout=5m \
+          -input=false
+
+      - name: Comment plan on PR
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          path: ${{ env.TF_WORKING_DIR }}/tfplan.binary
+
+  apply:
+    name: 🚀 Apply (dev)
+    needs: plan
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v3
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Init dev
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        run: terraform init -reconfigure -input=false
+
+      - name: Terraform apply
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        run: terraform apply -auto-approve tfplan.binary
