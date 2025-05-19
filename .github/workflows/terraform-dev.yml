@@ -46,6 +46,15 @@ jobs:
     - uses: hashicorp/setup-terraform@v3
       with:
         terraform_version: 1.6.6
+    
+    - name: Debug AWS creds
+      run: |
+        echo "Key len: ${#AWS_ACCESS_KEY_ID}"
+        echo "Secret len: ${#AWS_SECRET_ACCESS_KEY}"
+        echo "First/last chars: ${AWS_SECRET_ACCESS_KEY:0:1}…${AWS_SECRET_ACCESS_KEY: -1}"
+
+    - name: Check AWS identity
+      run: aws sts get-caller-identity
 
     - run: terraform init
     - run: terraform fmt -check -recursive
