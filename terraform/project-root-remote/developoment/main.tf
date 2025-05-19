@@ -2,7 +2,7 @@ provider "aws" {
   region = "us-west-2"
 }
 
-# 🔹 Store Terraform State in S3
+# 🔹 Store Terraform State in S3 oregon
 terraform {
   backend "s3" {
     bucket         = "terraform-uni-kuuli-oregon"
