@@ -1,12 +1,13 @@
 name: Terraform Dev CI/CD
 
 on:
-  pull_request:
+  push:
     branches:
+      - main
       - dev
     paths:
       - 'terraform/project-root-remote/development/**'
-  push:
+  pull_request:
     branches:
       - dev
     paths:
@@ -17,13 +18,32 @@ env:
   TF_WORKING_DIR: terraform/project-root-remote/development/
 
 jobs:
-  fmt-validate:
-    name: 🧹 Format & Validate
+  # 1️⃣ Push to main → open a PR into dev
+  create-pr:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    name: 📝 Create PR to dev
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "chore: Terraform infra changes"
+          branch: infra-pr-${{ github.run_id }}
+          base: dev
+          title: "🔧 Terraform updates for dev"
+          body: |
+            This PR contains the latest Terraform changes for the **development** environment.
+
+  # 2️⃣ PR into dev → fmt, validate, plan & comment
+  plan:
+    if: github.event_name == 'pull_request'
+    name: 🔍 Plan dev
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      # 🔑 Configure AWS creds from Secrets
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v3
         with:
@@ -46,47 +66,21 @@ jobs:
           terraform init -input=false
           terraform validate
 
-  plan:
-    name: 🔍 Plan (dev)
-    needs: fmt-validate
-    if: github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v3
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1
-
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v2
-        with:
-          terraform_version: ${{ env.TF_VERSION }}
-
-      - name: Init dev
+      - name: Init & Plan
         working-directory: ${{ env.TF_WORKING_DIR }}
-        run: terraform init -reconfigure -input=false
-
-      - name: Terraform plan
-        id: tfplan
-        working-directory: ${{ env.TF_WORKING_DIR }}
-        run: terraform plan \
-          -out=tfplan.binary \
-          -lock-timeout=5m \
-          -input=false
+        run: |
+          terraform init -reconfigure -input=false
+          terraform plan -out=tfplan.binary -lock-timeout=5m -input=false
 
       - name: Comment plan on PR
         uses: marocchino/sticky-pull-request-comment@v2
         with:
           path: ${{ env.TF_WORKING_DIR }}/tfplan.binary
 
+  # 3️⃣ Merge PR → push to dev → replan & apply
   apply:
-    name: 🚀 Apply (dev)
-    needs: plan
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/dev'
+    name: 🚀 Apply dev
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -103,10 +97,9 @@ jobs:
         with:
           terraform_version: ${{ env.TF_VERSION }}
 
-      - name: Init dev
+      - name: Init, Plan & Apply
         working-directory: ${{ env.TF_WORKING_DIR }}
-        run: terraform init -reconfigure -input=false
-
-      - name: Terraform apply
-        working-directory: ${{ env.TF_WORKING_DIR }}
-        run: terraform apply -auto-approve tfplan.binary
+        run: |
+          terraform init -reconfigure -input=false
+          terraform plan -out=tfplan.binary -lock-timeout=5m -input=false
+          terraform apply -auto-approve tfplan.binary
