@@ -3,11 +3,11 @@ name: Terraform Prod
 on:
   pull_request:
     paths:
-      - 'terraform/project-root-remote/Production/**'
+      - 'terraform/project-root-remote/production/**'
   push:
     branches: [main,dev]
     paths:
-      - 'terraform/project-root-remote/Production/**'
+      - 'terraform/project-root-remote/production/**'
 
 jobs:
   terraform-prod:
