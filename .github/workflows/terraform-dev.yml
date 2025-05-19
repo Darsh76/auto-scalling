@@ -5,7 +5,7 @@ on:
     paths:
       - 'terraform/project-root-remote/development/**'
   push:
-    branches: [main,dev]
+    branches: [dev]
     paths:
       - 'terraform/project-root-remote/development/**'
 
