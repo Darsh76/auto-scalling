@@ -51,10 +51,10 @@ jobs:
     - run: terraform fmt -check -recursive
     - run: terraform validate
 
-    - name: Terraform Plan
+    - name: Terraform Plan for darsh branch
       if: github.event_name == 'pull_request'
       run: terraform plan
 
-    - name: Terraform Apply for dev branch
+    - name: Terraform Apply for darsh branch
       if: github.ref == 'refs/heads/main' && github.event_name == 'push'
       run: terraform apply -auto-approve
