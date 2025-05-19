@@ -1,0 +1,42 @@
+name: Block Backend Apply
+
+on:
+  pull_request:
+    paths:
+      - 'terraform/project-root-remote/Backend/**'
+  push:
+    branches: [main,dev]
+    paths:
+      - 'terraform/project-root-remote/Backend/**'
+
+jobs:
+  block-backend:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 
+
+      - name: Switch to dev branch if needed
+        run: |
+          set -e
+          echo "🔍 Checking current Git branch..."
+          current_branch=$(git rev-parse --abbrev-ref HEAD)
+          echo "   → $current_branch"
+
+          if [ "$current_branch" != "dev" ]; then
+            echo "🚚 Switching to dev branch..."
+            git stash || true
+            git checkout dev
+            echo "📥 Pulling latest origin/dev..."
+            git pull origin dev || exit 1
+          else
+            echo "✅ Already on dev branch."
+          fi
+
+      - name: Prevent backend apply
+        run: |
+          echo "❌ Applying backend is not allowed through CI."
+          exit 1
