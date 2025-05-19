@@ -1,0 +1,61 @@
+name: Terraform Prod
+
+on:
+  pull_request:
+    paths:
+      - 'terraform/project-root-remote/production/**'
+  push:
+    branches: [main,dev]
+    paths:
+      - 'terraform/project-root-remote/production/**'
+
+jobs:
+  terraform-prod:
+    name: Production
+    runs-on: ubuntu-latest
+    environment: production
+    defaults:
+      run:
+        working-directory: terraform/project-root-remote/production
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Ensures full git history for branch switching
+
+    - name: Switch to dev branch if needed
+      run: |
+        set -e
+        echo "🔍 Checking current Git branch..."
+        current_branch=$(git rev-parse --abbrev-ref HEAD)
+        echo "   → $current_branch"
+
+        if [ "$current_branch" != "dev" ]; then
+          echo "🚚 Switching to dev branch..."
+          git stash || true
+          git checkout dev
+          echo "📥 Pulling latest origin/dev..."
+          git pull origin dev || exit 1
+        else
+          echo "✅ Already on dev branch."
+        fi
+
+    - uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: 1.6.6
+
+    - run: terraform init
+    - run: terraform fmt -check -recursive
+    - run: terraform validate
+
+    - name: Terraform Plan
+      if: github.event_name == 'pull_request'
+      run: terraform plan
+
+    - name: Terraform Apply
+      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+      run: terraform apply -auto-approve
