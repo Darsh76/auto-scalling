@@ -24,7 +24,7 @@ resource "aws_key_pair" "generated_key" {
   public_key = tls_private_key.instance_key.public_key_openssh
 }
 
-# 🔹 Create Security Groupfor dev
+# 🔹 Create Security Groupfor dev env
 resource "aws_security_group" "uni_kuuli_sg" {
   name        = "uni-kuuli-dev-sg"
   description = "Security group for uni-kuuli development instance"
