@@ -75,7 +75,7 @@ resource "aws_instance" "new_instance" {
   }
 }
 
-# 🔹 Create Elastic IP for dev
+# 🔹 Create Elastic IP for development
 resource "aws_eip" "elastic_ip" {
   domain = "vpc"
 }
