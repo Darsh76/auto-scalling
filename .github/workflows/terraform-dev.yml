@@ -2,11 +2,11 @@ name: Terraform CI/CD
 
 on:
   pull_request:
-    branches: [ main ]
+    branches: [ dev ]
     paths:
       - 'terraform/project-root-remote/development/**'
   push:
-    branches: [ main ]
+    branches: [ dev ]
     paths:
       - 'terraform/project-root-remote/development/**'
 
