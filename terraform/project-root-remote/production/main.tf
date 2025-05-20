@@ -2,32 +2,31 @@ provider "aws" {
   region = "us-west-2"
 }
 
-# 🔹 Store Terraform State in S3
 terraform {
   backend "s3" {
     bucket         = "terraform-uni-kuuli-oregon"
-    key            = "terraform/development/terraform.tfstate"
+    key            = "terraform/production/terraform.tfstate"
     region         = "us-west-2"
     encrypt        = true
     dynamodb_table = "terraform-locks"
   }
 }
 
-# 🔹 Generate an SSH Key Pairs
+# 🔹 Generate an SSH Key Pair
 resource "tls_private_key" "instance_key" {
   algorithm = "RSA"
   rsa_bits  = 2048
 }
 
 resource "aws_key_pair" "generated_key" {
-  key_name   = "uni-kuuli-dev-key"
+  key_name   = "uni-kuuli-production-key"
   public_key = tls_private_key.instance_key.public_key_openssh
 }
 
-#  Create Security group for dev
+# 🔹 Create Security Group
 resource "aws_security_group" "uni_kuuli_sg" {
-  name        = "uni-kuuli-dev-sg"
-  description = "Security group for uni-kuuli development instance"
+  name        = "uni-kuuli-production-sg"
+  description = "Security group for uni-kuuli production instance"
 
   ingress {
     from_port   = 22
@@ -62,20 +61,20 @@ resource "aws_security_group" "uni_kuuli_sg" {
   }
 }
 
-#  Launch EC2 Instance for dev changes
+# 🔹 Launch EC2 Instance
 resource "aws_instance" "new_instance" {
   ami                    = "ami-03a41751d177f91e6" # Change to your AMI ID
-  instance_type          = "t3.medium"
+  instance_type          = "t2.micro"
   key_name               = aws_key_pair.generated_key.key_name
   vpc_security_group_ids = [aws_security_group.uni_kuuli_sg.id]
 
   tags = {
-    Name  = "uni-kuuli-dev-instance"
+    Name  = "uni-kuuli-production-instance"
     Owner = "kuuli"
   }
 }
 
-# 🔹 Create Elastic IP for development
+# 🔹 Create Elastic IP
 resource "aws_eip" "elastic_ip" {
   domain = "vpc"
 }
@@ -86,7 +85,7 @@ resource "aws_eip_association" "eip_assoc" {
   allocation_id = aws_eip.elastic_ip.id
 }
 
-# 🔹 Outputs ip
+# 🔹 Outputs
 output "public_ip" {
   value = aws_eip.elastic_ip.public_ip
 }
