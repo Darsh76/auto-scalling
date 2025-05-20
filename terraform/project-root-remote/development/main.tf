@@ -65,7 +65,7 @@ resource "aws_security_group" "uni_kuuli_sg" {
 #  Launch EC2 Instance for dev
 resource "aws_instance" "new_instance" {
   ami                    = "ami-03a41751d177f91e6" # Change to your AMI ID
-  instance_type          = "t2.micro"
+  instance_type          = "t3.medium"
   key_name               = aws_key_pair.generated_key.key_name
   vpc_security_group_ids = [aws_security_group.uni_kuuli_sg.id]
 
