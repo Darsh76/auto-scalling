@@ -1,6 +1,11 @@
 name: Terraform Dev CI/CD
 
 on:
+  pull_request:
+    branches: [ dev ]
+    paths:
+      - 'terraform/project-root-remote/development/**'
+
   push:
     branches: [ dev ]
     paths:
@@ -8,90 +13,51 @@ on:
 
 permissions:
   contents: write
+  pull-requests: write  # needed to comment on PRs if using plan output
 
 env:
   TF_VERSION: 1.5.0
   TF_WORKING_DIR: terraform/project-root-remote/development/
 
 jobs:
-  fmt-validate:
-    name: Format & Validate Terraform
+  terraform:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
-      - uses: aws-actions/configure-aws-credentials@v3
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v3
         with:
-          aws-access-key-id:     ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region:            us-east-1
+          aws-region: us-west-2
 
-      - uses: hashicorp/setup-terraform@v2
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
         with:
           terraform_version: ${{ env.TF_VERSION }}
 
-      - name: Check Terraform Formatting
+      - name: Terraform Init
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        run: terraform init -input=false
+
+      - name: Terraform Fmt
         working-directory: ${{ env.TF_WORKING_DIR }}
         run: terraform fmt -check -recursive
 
-      - name: Terraform Init
-        working-directory: ${{ env.TF_WORKING_DIR }}
-        run: terraform init -input=false
-
-      - name: Validate Terraform Configuration
+      - name: Terraform Validate
         working-directory: ${{ env.TF_WORKING_DIR }}
         run: terraform validate
 
-  plan:
-    name: Terraform Plan
-    needs: fmt-validate
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: aws-actions/configure-aws-credentials@v3
-        with:
-          aws-access-key-id:     ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region:            us-east-1
-
-      - uses: hashicorp/setup-terraform@v2
-        with:
-          terraform_version: ${{ env.TF_VERSION }}
-
-      - name: Terraform Init
-        working-directory: ${{ env.TF_WORKING_DIR }}
-        run: terraform init -input=false
-
       - name: Terraform Plan
+        if: github.event_name == 'pull_request'
         working-directory: ${{ env.TF_WORKING_DIR }}
-        run: terraform plan -out=tfplan.binary -lock-timeout=5m -input=false
-
-      - name: Show Plan Summary
-        working-directory: ${{ env.TF_WORKING_DIR }}
-        run: terraform show -no-color tfplan.binary >> $GITHUB_STEP_SUMMARY
-
-  apply:
-    name: Terraform Apply
-    needs: plan
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: aws-actions/configure-aws-credentials@v3
-        with:
-          aws-access-key-id:     ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region:            us-east-1
-
-      - uses: hashicorp/setup-terraform@v2
-        with:
-          terraform_version: ${{ env.TF_VERSION }}
-
-      - name: Terraform Init
-        working-directory: ${{ env.TF_WORKING_DIR }}
-        run: terraform init -input=false
+        run: terraform plan -no-color
 
       - name: Terraform Apply
+        if: github.event_name == 'push'
         working-directory: ${{ env.TF_WORKING_DIR }}
         run: terraform apply -auto-approve
+ 
