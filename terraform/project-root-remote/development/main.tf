@@ -62,7 +62,7 @@ resource "aws_security_group" "uni_kuuli_sg" {
   }
 }
 
-#  Launch EC2 Instance on dev 
+#  Launch EC2 Instance 
 resource "aws_instance" "new_instance" {
   ami                    = "ami-03a41751d177f91e6" # Change to your AMI ID
   instance_type          = "t2.micro"

@@ -13,51 +13,96 @@ on:
 
 permissions:
   contents: write
-  pull-requests: write  # needed to comment on PRs if using plan output
+  pull-requests: write
 
 env:
   TF_VERSION: 1.5.0
   TF_WORKING_DIR: terraform/project-root-remote/development/
 
 jobs:
+  # ────────────────
+  # 1) Terraform job
+  # ────────────────
   terraform:
+    name: 🛠 Terraform (plan/apply)
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ env.TF_WORKING_DIR }}
 
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
-
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v3
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-west-2
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
         with:
           terraform_version: ${{ env.TF_VERSION }}
 
-      - name: Terraform Init
-        working-directory: ${{ env.TF_WORKING_DIR }}
+      # offline init for PRs (no AWS calls, remote-state, or locks)
+      - name: Terraform Init (PR)
+        if: github.event_name == 'pull_request'
+        run: terraform init -backend=false -input=false
+
+      # real init for pushes (with backend)
+      - name: Configure AWS Credentials
+        if: github.event_name == 'push'
+        uses: aws-actions/configure-aws-credentials@v3
+        with:
+          aws-access-key-id:     ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region:            us-west-2
+
+      - name: Terraform Init (Push)
+        if: github.event_name == 'push'
         run: terraform init -input=false
 
       - name: Terraform Fmt
-        working-directory: ${{ env.TF_WORKING_DIR }}
         run: terraform fmt -check -recursive
 
       - name: Terraform Validate
-        working-directory: ${{ env.TF_WORKING_DIR }}
         run: terraform validate
 
       - name: Terraform Plan
         if: github.event_name == 'pull_request'
-        working-directory: ${{ env.TF_WORKING_DIR }}
         run: terraform plan -no-color
 
       - name: Terraform Apply
         if: github.event_name == 'push'
-        working-directory: ${{ env.TF_WORKING_DIR }}
         run: terraform apply -auto-approve
- 
+
+  # ───────────────────────────
+  # 2) Auto-create PR job
+  # ───────────────────────────
+  auto-pr:
+    name: 🤖 Auto-create PR dev → main
+    runs-on: ubuntu-latest
+    needs: terraform
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/dev' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create Pull Request
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const { data: existing } = await github.rest.pulls.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              head: `${context.repo.owner}:dev`,
+              base: 'main',
+            });
+            if (existing.length === 0) {
+              await github.rest.pulls.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                head: 'dev',
+                base: 'main',
+                title: 'Auto PR: sync dev → main',
+                body: 'This PR was automatically created by GitHub Actions.',
+              });
+              console.log('✅ PR created');
+            } else {
+              console.log('ℹ️ PR already exists, skipping');
+            }
