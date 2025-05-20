@@ -5,19 +5,19 @@ on:
   pull_request:
     branches: [ dev ]
     paths:
-      - 'terraform/project-root-remote/development/**'
+      - 'terraform/project-root-remote/developoment/**'
   # Pushes → only on main now
   push:
     branches: [ dev ]
     paths:
-      - 'terraform/project-root-remote/development/**'
+      - 'terraform/project-root-remote/developoment/**'
 
 permissions:
   contents: write
 
 env:
   TF_VERSION: 1.5.0
-  TF_WORKING_DIR: terraform/project-root-remote/development/
+  TF_WORKING_DIR: terraform/project-root-remote/developoment/
 
 jobs:
   fmt-validate:
