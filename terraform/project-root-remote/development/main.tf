@@ -13,7 +13,7 @@ terraform {
   }
 }
 
-# 🔹 Generate an SSH Key Pair
+# 🔹 Generate an SSH Key Pairs
 resource "tls_private_key" "instance_key" {
   algorithm = "RSA"
   rsa_bits  = 2048
@@ -24,7 +24,7 @@ resource "aws_key_pair" "generated_key" {
   public_key = tls_private_key.instance_key.public_key_openssh
 }
 
-#  Create Security Groupfor dev env
+#  Create Security group
 resource "aws_security_group" "uni_kuuli_sg" {
   name        = "uni-kuuli-dev-sg"
   description = "Security group for uni-kuuli development instance"
@@ -62,7 +62,7 @@ resource "aws_security_group" "uni_kuuli_sg" {
   }
 }
 
-#  Launch EC2 Instance
+#  Launch EC2 Instance 
 resource "aws_instance" "new_instance" {
   ami                    = "ami-03a41751d177f91e6" # Change to your AMI ID
   instance_type          = "t2.micro"
@@ -75,7 +75,7 @@ resource "aws_instance" "new_instance" {
   }
 }
 
-# 🔹 Create Elastic IP
+# 🔹 Create Elastic IP for dev
 resource "aws_eip" "elastic_ip" {
   domain = "vpc"
 }
