@@ -73,6 +73,7 @@ jobs:
     name: 🚀 Terraform Apply
     if: github.event_name == 'push' && github.ref == 'refs/heads/dev'
     runs-on: ubuntu-latest
+    environment: development
     steps:
       - uses: actions/checkout@v4
       - uses: aws-actions/configure-aws-credentials@v3
