@@ -1,5 +1,7 @@
 name: Block Backend Apply
 
+# This workflow blocks any apply actions on the backend directory.
+# It is triggered on pull requests and pushes to the main, dev, and darsh branches.
 on:
   pull_request:
     paths:
