@@ -86,7 +86,7 @@ resource "aws_eip_association" "eip_assoc" {
   allocation_id = aws_eip.elastic_ip.id
 }
 
-# 🔹 Outputs
+# 🔹 Outputs ip
 output "public_ip" {
   value = aws_eip.elastic_ip.public_ip
 }
