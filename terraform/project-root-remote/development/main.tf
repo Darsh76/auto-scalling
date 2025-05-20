@@ -24,7 +24,7 @@ resource "aws_key_pair" "generated_key" {
   public_key = tls_private_key.instance_key.public_key_openssh
 }
 
-# 🔹 Create Security Group
+#  Create Security Groupfor dev env
 resource "aws_security_group" "uni_kuuli_sg" {
   name        = "uni-kuuli-dev-sg"
   description = "Security group for uni-kuuli development instance"
@@ -43,6 +43,13 @@ resource "aws_security_group" "uni_kuuli_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
+  ingress {
+    from_port   = 3000
+    to_port     = 3000
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
   egress {
     from_port   = 0
     to_port     = 0
@@ -55,7 +62,7 @@ resource "aws_security_group" "uni_kuuli_sg" {
   }
 }
 
-# 🔹 Launch EC2 Instance
+#  Launch EC2 Instance
 resource "aws_instance" "new_instance" {
   ami                    = "ami-03a41751d177f91e6" # Change to your AMI ID
   instance_type          = "t2.micro"
