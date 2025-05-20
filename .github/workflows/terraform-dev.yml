@@ -3,12 +3,12 @@ name: Terraform Dev CI/CD
 on:
   # PRs → run fmt & plan on dev
   pull_request:
-    branches: [ main ]
+    branches: [ dev ]
     paths:
       - 'terraform/project-root-remote/development/**'
   # Pushes → only on main now
   push:
-    branches: [ main ]
+    branches: [ dev ]
     paths:
       - 'terraform/project-root-remote/development/**'
 
@@ -71,7 +71,7 @@ jobs:
 
   apply:
     name: 🚀 Terraform Apply
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/dev'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
