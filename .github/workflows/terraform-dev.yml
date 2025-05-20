@@ -62,7 +62,7 @@ jobs:
         run: terraform show -no-color tfplan.binary >> $GITHUB_STEP_SUMMARY
 
   # ───────────────────────────
-  # 2) Auto-create PR dev → main
+  # 2) Auto-create PR dev → main branch
   # ───────────────────────────
   auto-pr:
     name: 🤖 Auto-PR dev → main

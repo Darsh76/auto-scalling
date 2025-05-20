@@ -13,7 +13,7 @@ terraform {
   }
 }
 
-# 🔹 Generate an SSH Key Pair
+# 🔹 Generate an SSH Key Pairs
 resource "tls_private_key" "instance_key" {
   algorithm = "RSA"
   rsa_bits  = 2048
