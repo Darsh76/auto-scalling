@@ -24,7 +24,7 @@ resource "aws_key_pair" "generated_key" {
   public_key = tls_private_key.instance_key.public_key_openssh
 }
 
-#  Create Security group
+#  Create Security group for dev
 resource "aws_security_group" "uni_kuuli_sg" {
   name        = "uni-kuuli-dev-sg"
   description = "Security group for uni-kuuli development instance"
@@ -62,10 +62,10 @@ resource "aws_security_group" "uni_kuuli_sg" {
   }
 }
 
-#  Launch EC2 Instance 
+#  Launch EC2 Instance for dev
 resource "aws_instance" "new_instance" {
   ami                    = "ami-03a41751d177f91e6" # Change to your AMI ID
-  instance_type          = "t2.micro"
+  instance_type          = "t3.medium"
   key_name               = aws_key_pair.generated_key.key_name
   vpc_security_group_ids = [aws_security_group.uni_kuuli_sg.id]
 
@@ -86,7 +86,7 @@ resource "aws_eip_association" "eip_assoc" {
   allocation_id = aws_eip.elastic_ip.id
 }
 
-# 🔹 Outputs
+# 🔹 Outputs ip
 output "public_ip" {
   value = aws_eip.elastic_ip.public_ip
 }
