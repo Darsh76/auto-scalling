@@ -3,7 +3,7 @@ name: Terraform Dev CI/CD
 on:
   # PRs → run fmt & plan on dev
   pull_request:
-    branches: [ dev ]
+    branches: [ main ]
     paths:
       - 'terraform/project-root-remote/development/**'
   # Pushes → only on main now
