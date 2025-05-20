@@ -1,0 +1,19 @@
+name: Block Backend Apply
+
+on:
+  pull_request:
+    paths:
+      - 'terraform/project-root-local/backend/**'
+  push:
+    branches: [main, dev, darsh]
+    paths:
+      - 'terraform/project-root-local/backend/**'
+
+jobs:
+  block-backend:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Prevent backend apply
+        run: |
+          echo "❌ Applying backend is not allowed through CI."
+          exit 1
